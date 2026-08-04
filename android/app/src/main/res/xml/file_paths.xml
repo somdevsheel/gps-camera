@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Only the two capture directories are exposed through the FileProvider.
+  Nothing else in the app's private storage is shareable.
+-->
+<paths>
+    <files-path name="captures_stamped" path="captures/stamped/" />
+    <files-path name="captures_originals" path="captures/originals/" />
+</paths>
