@@ -3,54 +3,81 @@ import {log} from '../utils/logger';
 
 const DB_NAME = 'gps_location_camera.sqlite';
 
-const SCHEMA_STATEMENTS = [
-  `CREATE TABLE IF NOT EXISTS captures (
-    captureId TEXT PRIMARY KEY NOT NULL,
-    originalImagePath TEXT,
-    stampedImagePath TEXT,
-    galleryUri TEXT,
-    latitude REAL,
-    longitude REAL,
-    accuracy REAL,
-    altitude REAL,
-    speed REAL,
-    address TEXT,
-    addressJson TEXT,
-    captureTimestamp INTEGER NOT NULL,
-    gpsTimestamp INTEGER,
-    heading REAL,
-    cardinal TEXT,
-    originalSha256 TEXT,
-    stampedSha256 TEXT,
-    verificationStatus TEXT NOT NULL,
-    provider TEXT,
-    companyName TEXT,
-    projectName TEXT,
-    note TEXT,
-    width INTEGER,
-    height INTEGER,
-    createdAt INTEGER NOT NULL
-  )`,
-  'CREATE INDEX IF NOT EXISTS idx_captures_time ON captures (captureTimestamp DESC)',
-  `CREATE TABLE IF NOT EXISTS meta (
-    key TEXT PRIMARY KEY NOT NULL,
-    value TEXT
-  )`,
+/**
+ * Ordered schema migrations. Entry N upgrades a database at version N to N + 1,
+ * so an installed app on any older version is brought forward step by step.
+ *
+ * Never edit or reorder a shipped entry - existing installs have already run
+ * it. To change the schema, append a new entry (e.g. an `ALTER TABLE ... ADD
+ * COLUMN`) and its statements will run once on every device that updates.
+ */
+const MIGRATIONS: ReadonlyArray<ReadonlyArray<string>> = [
+  // 0 -> 1: initial schema.
+  [
+    `CREATE TABLE IF NOT EXISTS captures (
+      captureId TEXT PRIMARY KEY NOT NULL,
+      originalImagePath TEXT,
+      stampedImagePath TEXT,
+      galleryUri TEXT,
+      latitude REAL,
+      longitude REAL,
+      accuracy REAL,
+      altitude REAL,
+      speed REAL,
+      address TEXT,
+      addressJson TEXT,
+      captureTimestamp INTEGER NOT NULL,
+      gpsTimestamp INTEGER,
+      heading REAL,
+      cardinal TEXT,
+      originalSha256 TEXT,
+      stampedSha256 TEXT,
+      verificationStatus TEXT NOT NULL,
+      provider TEXT,
+      companyName TEXT,
+      projectName TEXT,
+      note TEXT,
+      width INTEGER,
+      height INTEGER,
+      createdAt INTEGER NOT NULL
+    )`,
+    'CREATE INDEX IF NOT EXISTS idx_captures_time ON captures (captureTimestamp DESC)',
+  ],
 ];
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = MIGRATIONS.length;
 
 let instance: DB | null = null;
 let initPromise: Promise<DB> | null = null;
 
+async function readSchemaVersion(db: DB): Promise<number> {
+  const result = await db.execute("SELECT value FROM meta WHERE key = 'schemaVersion'");
+  const value = Number(result.rows[0]?.value);
+  return Number.isInteger(value) && value > 0 ? value : 0;
+}
+
 async function migrate(db: DB): Promise<void> {
-  for (const statement of SCHEMA_STATEMENTS) {
-    await db.execute(statement);
+  await db.execute('CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY NOT NULL, value TEXT)');
+  const current = await readSchemaVersion(db);
+  if (current > SCHEMA_VERSION) {
+    // Written by a newer build (e.g. after a downgrade); leave it untouched.
+    log.warn('db', `schema version ${current} is newer than ${SCHEMA_VERSION}`);
+    return;
   }
-  await db.execute('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)', [
-    'schemaVersion',
-    String(SCHEMA_VERSION),
-  ]);
+  for (let version = current; version < SCHEMA_VERSION; version++) {
+    const statements = MIGRATIONS[version] ?? [];
+    // Each step and its version bump commit together, so an interrupted
+    // upgrade resumes from the last completed step on the next launch.
+    await db.transaction(async tx => {
+      for (const statement of statements) {
+        await tx.execute(statement);
+      }
+      await tx.execute("INSERT OR REPLACE INTO meta (key, value) VALUES ('schemaVersion', ?)", [
+        String(version + 1),
+      ]);
+    });
+    log.debug('db', `migrated schema to version ${version + 1}`);
+  }
 }
 
 /**
