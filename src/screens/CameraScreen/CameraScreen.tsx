@@ -55,7 +55,8 @@ const BENIGN_CAMERA_ERROR = /torch|not active|operationcanceled|session is not r
 const CAMERA_ERROR_MESSAGE =
   'The camera is temporarily unavailable. Try closing and reopening this screen.';
 
-const STAGE_LABEL: Record<CaptureStage, string> = {
+const STAGE_LABEL: Record<CaptureStage | 'capturing', string> = {
+  capturing: 'Capturing…',
   locating: 'Acquiring GPS…',
   geocoding: 'Resolving address…',
   hashing: 'Hashing image…',
@@ -86,7 +87,7 @@ export function CameraScreen(): React.ReactElement {
   const [torch, setTorch] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [busy, setBusy] = useState(false);
-  const [stage, setStage] = useState<CaptureStage | null>(null);
+  const [stage, setStage] = useState<CaptureStage | 'capturing' | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [clock, setClock] = useState(Date.now());
 
@@ -98,7 +99,9 @@ export function CameraScreen(): React.ReactElement {
   const locationGranted =
     snapshot?.fineLocation === 'granted' || snapshot?.coarseLocation === 'granted';
 
-  useLocationTracking(live, Boolean(locationGranted));
+  // Wait for the first permission snapshot; until then "not granted" only means
+  // "not checked yet" and would flash the permission-denied banner on launch.
+  useLocationTracking(live && snapshot !== null, Boolean(locationGranted));
   useCompassTracking(live, settings.showCompass);
   useReverseGeocode(live, settings.showAddress);
 
@@ -178,7 +181,7 @@ export function CameraScreen(): React.ReactElement {
     }
     capturing.current = true;
     setBusy(true);
-    setStage('locating');
+    setStage('capturing');
 
     try {
       const file = await photoOutput.capturePhotoToFile(
@@ -283,7 +286,9 @@ export function CameraScreen(): React.ReactElement {
 
       {/* Top chrome */}
       <View style={[styles.topBar, {paddingTop: insets.top + Spacing.sm}]}>
-        <GpsStatusPill gps={gps} onPress={handleGpsPress} />
+        <View style={styles.statusSlot}>
+          <GpsStatusPill gps={gps} onPress={handleGpsPress} />
+        </View>
         <View style={styles.topActions}>
           <ControlButton
             icon={flash === 'off' ? 'flashOff' : 'flashOn'}
@@ -379,8 +384,8 @@ export function CameraScreen(): React.ReactElement {
               onPress={() => setPosition(current => (current === 'back' ? 'front' : 'back'))}
             />
             <ControlButton
-              icon="camera"
-              label="Toggle torch"
+              icon="torch"
+              label={torch ? 'Turn torch off' : 'Turn torch on'}
               active={torch}
               disabled={!torchAvailable}
               onPress={() => setTorch(current => !current)}
@@ -420,6 +425,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: Spacing.md,
   },
+  statusSlot: {flex: 1, minWidth: 0},
   topActions: {flexDirection: 'row', gap: Spacing.sm},
   bottom: {
     position: 'absolute',

@@ -8,10 +8,10 @@ import type {
   ServiceResult,
   VerificationStatus,
 } from '../../types';
-import {ALBUM_NAME, GPS, MAP} from '../../constants';
+import {ALBUM_NAME, GEOCODE, GPS, MAP} from '../../constants';
 import {createId} from '../../utils/id';
 import {formatAddress} from '../../utils/format';
-import {isFixUsable} from '../../utils/geo';
+import {distanceMeters, isFixUsable} from '../../utils/geo';
 import {fail, ok, withTimeout} from '../../utils/result';
 import {log} from '../../utils/logger';
 import {captureRepository} from '../../database/CaptureRepository';
@@ -117,8 +117,14 @@ export const captureService = {
     let addressJson: string | null = null;
     let addressData: PostalAddress | null = null;
     if (fix && settings.showAddress) {
-      const cached =
-        input.cachedGeocode?.status === 'ok' ? input.cachedGeocode : geocodingService.peekCached(fix.latitude, fix.longitude);
+      // The HUD's address may have been resolved for an earlier position (e.g.
+      // before a fresh verified fix was taken); only reuse it if it is close.
+      const hud = input.cachedGeocode;
+      const hudMatches =
+        hud?.status === 'ok' &&
+        distanceMeters(hud.latitude, hud.longitude, fix.latitude, fix.longitude) <=
+          GEOCODE.MIN_MOVE_M;
+      const cached = hudMatches ? hud : geocodingService.peekCached(fix.latitude, fix.longitude);
       const geocode =
         cached ??
         (await withTimeout(
@@ -301,7 +307,10 @@ export const captureService = {
 
   /**
    * Recomputes hashes and compares them with the stored digests. A mismatch is
-   * recorded as `tampered` rather than silently corrected.
+   * recorded as `tampered` rather than silently corrected. A tampered record
+   * whose file matches again only returns to `unverified`: the record does not
+   * remember whether it was verified before, and a re-check must never promote
+   * a capture to `gps-verified`.
    */
   async reverify(record: CaptureRecord): Promise<ServiceResult<VerificationStatus>> {
     if (record.verificationStatus === 'not-applicable') {
@@ -318,7 +327,7 @@ export const captureService = {
     }
     const status: VerificationStatus = result.value
       ? record.verificationStatus === 'tampered'
-        ? 'gps-verified'
+        ? 'unverified'
         : record.verificationStatus
       : 'tampered';
     if (status !== record.verificationStatus) {

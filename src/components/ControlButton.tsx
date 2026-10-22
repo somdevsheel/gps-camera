@@ -14,7 +14,7 @@ interface ControlButtonProps {
 }
 
 /** Round translucent control used along the camera chrome. */
-export const ControlButton = memo(function ControlButton({
+export const ControlButton = memo(function ControlButtonImpl({
   icon,
   label,
   onPress,

@@ -12,7 +12,7 @@ interface ShutterButtonProps {
 const SIZE = 78;
 
 /** Large circular shutter; stays enabled even when GPS is still searching. */
-export const ShutterButton = memo(function ShutterButton({
+export const ShutterButton = memo(function ShutterButtonImpl({
   onPress,
   busy,
   disabled = false,

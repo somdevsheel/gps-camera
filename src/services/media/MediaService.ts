@@ -2,11 +2,15 @@ import NativeGpsMedia from '../../specs/NativeGpsMedia';
 import NativeGpsImage from '../../specs/NativeGpsImage';
 import {ALBUM_NAME} from '../../constants';
 import type {ServiceResult} from '../../types';
-import {fromError, ok} from '../../utils/result';
+import {fail, fromError, ok} from '../../utils/result';
+import {permissionService} from '../permissions/PermissionService';
 
 /** Gallery export, sharing, clipboard and maps hand-off. */
 export const mediaService = {
   async saveToGallery(path: string): Promise<ServiceResult<string>> {
+    if (!(await permissionService.ensureGalleryAccess())) {
+      return fail('GALLERY_PERMISSION_DENIED', 'Storage permission is required to save to the gallery.');
+    }
     try {
       return ok(await NativeGpsMedia.saveToGallery(path, ALBUM_NAME));
     } catch (error) {

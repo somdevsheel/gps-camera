@@ -13,7 +13,7 @@ interface AppButtonProps {
   style?: ViewStyle;
 }
 
-export const AppButton = memo(function AppButton({
+export const AppButton = memo(function AppButtonImpl({
   title,
   onPress,
   variant = 'primary',

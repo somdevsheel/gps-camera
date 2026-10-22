@@ -73,7 +73,7 @@ export function PhotoDetailsScreen(): React.ReactElement {
   }, [imagePath]);
 
   const handleCopyCoordinates = useCallback(async () => {
-    if (!record?.latitude || !record?.longitude) {
+    if (record?.latitude == null || record?.longitude == null) {
       return;
     }
     const text = `${record.latitude.toFixed(6)}, ${record.longitude.toFixed(6)}`;
@@ -99,6 +99,30 @@ export function PhotoDetailsScreen(): React.ReactElement {
     Alert.alert('Integrity check', STATUS_LABEL[result.value]);
   }, [record, updateRecord]);
 
+  const handleOpenInMaps = useCallback(async () => {
+    if (record?.latitude == null || record?.longitude == null) {
+      return;
+    }
+    const result = await mediaService.openInMaps(
+      record.latitude,
+      record.longitude,
+      record.address ?? 'Capture location',
+    );
+    if (!result.ok) {
+      Alert.alert('No maps app', 'No application is installed that can open these coordinates.');
+    }
+  }, [record]);
+
+  const handleShare = useCallback(async () => {
+    if (!imagePath || !record) {
+      return;
+    }
+    const result = await mediaService.share(imagePath, record.address ?? 'Capture');
+    if (!result.ok) {
+      Alert.alert('Share failed', result.message);
+    }
+  }, [imagePath, record]);
+
   const handleDelete = useCallback(() => {
     if (!record) {
       return;
@@ -112,6 +136,8 @@ export function PhotoDetailsScreen(): React.ReactElement {
           const deleted = await removeRecord(record);
           if (deleted) {
             navigation.goBack();
+          } else {
+            Alert.alert('Delete failed', 'The capture could not be deleted.');
           }
         },
       },
@@ -222,14 +248,7 @@ export function PhotoDetailsScreen(): React.ReactElement {
         <AppButton
           title="Open in maps"
           variant="secondary"
-          onPress={() =>
-            hasCoordinates &&
-            mediaService.openInMaps(
-              record.latitude as number,
-              record.longitude as number,
-              record.address ?? 'Capture location',
-            )
-          }
+          onPress={handleOpenInMaps}
           disabled={!hasCoordinates}
           style={styles.action}
         />
@@ -237,7 +256,7 @@ export function PhotoDetailsScreen(): React.ReactElement {
       <View style={styles.actions}>
         <AppButton
           title="Share"
-          onPress={() => imagePath && mediaService.share(imagePath, record.address ?? 'Capture')}
+          onPress={handleShare}
           disabled={!imagePath || fileMissing}
           style={styles.action}
         />

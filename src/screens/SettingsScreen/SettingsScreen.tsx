@@ -80,7 +80,11 @@ export function SettingsScreen(): React.ReactElement {
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag">
       <SectionCard title="Stamp appearance">
         <SettingOptions
           label="Stamp style"

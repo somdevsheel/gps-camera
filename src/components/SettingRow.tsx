@@ -8,7 +8,7 @@ interface BaseProps {
   description?: string;
 }
 
-export const SettingSwitch = memo(function SettingSwitch({
+export const SettingSwitch = memo(function SettingSwitchImpl({
   label,
   description,
   value,
@@ -79,7 +79,7 @@ function SettingOptionsInner<T extends string>({
 
 export const SettingOptions = memo(SettingOptionsInner) as typeof SettingOptionsInner;
 
-export const SettingText = memo(function SettingText({
+export const SettingText = memo(function SettingTextImpl({
   label,
   description,
   value,
@@ -109,7 +109,7 @@ export const SettingText = memo(function SettingText({
   );
 });
 
-export const SettingLink = memo(function SettingLink({
+export const SettingLink = memo(function SettingLinkImpl({
   label,
   description,
   onPress,

@@ -10,7 +10,7 @@ interface EmptyStateProps {
   onAction?: () => void;
 }
 
-export const EmptyState = memo(function EmptyState({
+export const EmptyState = memo(function EmptyStateImpl({
   title,
   message,
   actionLabel,

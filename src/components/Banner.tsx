@@ -20,7 +20,7 @@ const TONE_COLOR: Record<Tone, string> = {
 };
 
 /** Inline non-blocking notice used for degraded states and capture warnings. */
-export const Banner = memo(function Banner({
+export const Banner = memo(function BannerImpl({
   tone = 'info',
   title,
   message,

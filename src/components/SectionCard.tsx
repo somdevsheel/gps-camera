@@ -8,7 +8,7 @@ interface SectionCardProps {
   children: ReactNode;
 }
 
-export const SectionCard = memo(function SectionCard({
+export const SectionCard = memo(function SectionCardImpl({
   title,
   footnote,
   children,

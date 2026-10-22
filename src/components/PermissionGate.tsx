@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
 import type {PermissionSnapshot} from '../types';
 import {APP_NAME, Colors, Spacing} from '../constants';
 import {AppButton} from './AppButton';
@@ -18,7 +18,7 @@ interface PermissionGateProps {
  * the system dialog appears, and a blocked permission routes to app settings
  * instead of re-prompting into a dead end.
  */
-export const PermissionGate = memo(function PermissionGate({
+export const PermissionGate = memo(function PermissionGateImpl({
   snapshot,
   busy,
   onRequest,
@@ -27,7 +27,9 @@ export const PermissionGate = memo(function PermissionGate({
   const blocked = snapshot.camera === 'blocked';
 
   return (
-    <View style={styles.container}>
+    // Scrollable so the action button stays reachable on small screens and with
+    // large system font sizes.
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <Image source={logo} style={styles.logo} resizeMode="contain" accessibilityIgnoresInvertColors />
       <Text style={styles.title}>{APP_NAME}</Text>
       <Text style={styles.body}>
@@ -56,16 +58,16 @@ export const PermissionGate = memo(function PermissionGate({
           style={styles.action}
         />
       )}
-    </View>
+    </ScrollView>
   );
 });
 
 const styles = StyleSheet.create({
+  scroll: {flex: 1, backgroundColor: Colors.background},
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     padding: Spacing.xl,
-    backgroundColor: Colors.background,
   },
   logo: {
     width: 96,

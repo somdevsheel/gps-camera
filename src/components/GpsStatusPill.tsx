@@ -18,7 +18,7 @@ const QUALITY_COLOR: Record<GpsQuality, string> = {
 };
 
 /** Compact GPS state chip: dot + phase label + accuracy. */
-export const GpsStatusPill = memo(function GpsStatusPill({gps, onPress}: GpsStatusPillProps) {
+export const GpsStatusPill = memo(function GpsStatusPillImpl({gps, onPress}: GpsStatusPillProps) {
   const {phase, quality, fix, message} = gps;
   const color = phase === 'ready' ? QUALITY_COLOR[quality] : Colors.warning;
   const label =

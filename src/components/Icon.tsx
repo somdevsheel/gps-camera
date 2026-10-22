@@ -7,15 +7,18 @@ import {Colors} from '../constants';
  * icon library (and its font assets) for the handful of symbols we need.
  */
 export const GLYPHS = {
-  flashOff: '⚡',
-  flashOn: '⚡',
-  flip: '⟲',
+  // '\uFE0E' forces text presentation. Without it Android draws ⚡ ⚙ ☀ as colour
+  // emoji, which ignore the `color` prop and look the same in every state.
+  flashOff: '⊘',
+  flashOn: '⚡\uFE0E',
+  flip: '⇄',
   gallery: '▣',
-  settings: '⚙',
+  settings: '⚙\uFE0E',
+  torch: '☀\uFE0E',
   close: '✕',
   check: '✓',
   share: '↗',
-  trash: '🗑',
+  trash: '✕',
   map: '◎',
   copy: '⧉',
   back: '‹',
@@ -36,7 +39,7 @@ interface IconProps {
   style?: TextStyle;
 }
 
-export const Icon = memo(function Icon({
+export const Icon = memo(function IconImpl({
   name,
   size = 20,
   color = Colors.text,

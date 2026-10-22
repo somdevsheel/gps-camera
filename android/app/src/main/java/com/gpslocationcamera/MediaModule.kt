@@ -94,9 +94,15 @@ class MediaModule(private val reactContext: ReactApplicationContext) :
           resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
             ?: throw IllegalStateException("MediaStore rejected the insert.")
 
-        resolver.openOutputStream(uri)?.use { output ->
-          source.inputStream().use { input -> input.copyTo(output) }
-        } ?: throw IllegalStateException("Could not open the MediaStore entry for writing.")
+        try {
+          resolver.openOutputStream(uri)?.use { output ->
+            source.inputStream().use { input -> input.copyTo(output) }
+          } ?: throw IllegalStateException("Could not open the MediaStore entry for writing.")
+        } catch (error: Exception) {
+          // Don't leave an empty, permanently pending entry behind in the album.
+          resolver.delete(uri, null, null)
+          throw error
+        }
 
         resolver.update(
           uri,

@@ -103,12 +103,13 @@ export function friendlyDayLabel(timestamp: number, dateFormat: DateFormat): str
 }
 
 function toDms(value: number): string {
-  const abs = Math.abs(value);
-  const degrees = Math.floor(abs);
-  const minutesFull = (abs - degrees) * 60;
-  const minutes = Math.floor(minutesFull);
-  const seconds = (minutesFull - minutes) * 60;
-  return `${degrees}° ${pad(minutes)}' ${seconds.toFixed(2)}"`;
+  // Round once, in hundredths of a second, so 59.999" carries into the next
+  // minute instead of printing as 60.00".
+  const hundredths = Math.round(Math.abs(value) * 360000);
+  const degrees = Math.floor(hundredths / 360000);
+  const minutes = Math.floor((hundredths % 360000) / 6000);
+  const seconds = (hundredths % 6000) / 100;
+  return `${degrees}° ${pad(minutes)}' ${seconds.toFixed(2).padStart(5, '0')}"`;
 }
 
 export function formatLatitude(lat: number, format: CoordinateFormat): string {

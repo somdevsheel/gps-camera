@@ -43,7 +43,7 @@ function addressText(geocode: GeocodeResult | null, showAddress: boolean): strin
  * Semi-transparent HUD above the shutter. Memoised and fed only the values it
  * renders, so a heading tick does not repaint the whole camera tree.
  */
-export const InfoPanel = memo(function InfoPanel({
+export const InfoPanel = memo(function InfoPanelImpl({
   gps,
   geocode,
   compass,

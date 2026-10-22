@@ -21,7 +21,8 @@ export function PreviewScreen(): React.ReactElement {
   const settings = useSettingsStore(state => state.settings);
   const records = useCaptureStore(state => state.records);
   const removeRecord = useCaptureStore(state => state.removeRecord);
-  const [working, setWorking] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const record = useMemo(
     () => records.find(item => item.captureId === params.captureId) ?? null,
@@ -34,7 +35,7 @@ export function PreviewScreen(): React.ReactElement {
     if (!imagePath || !record) {
       return;
     }
-    setWorking(true);
+    setSharing(true);
     const caption =
       record.latitude !== null && record.longitude !== null
         ? `${record.address ?? 'Capture'} — ${formatCoordinatePair(
@@ -44,7 +45,7 @@ export function PreviewScreen(): React.ReactElement {
           )}`
         : 'Capture';
     const result = await mediaService.share(imagePath, caption);
-    setWorking(false);
+    setSharing(false);
     if (!result.ok) {
       Alert.alert('Share failed', result.message);
     }
@@ -60,9 +61,9 @@ export function PreviewScreen(): React.ReactElement {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          setWorking(true);
+          setDeleting(true);
           const deleted = await removeRecord(record);
-          setWorking(false);
+          setDeleting(false);
           if (deleted) {
             navigation.navigate('Camera');
           } else {
@@ -74,7 +75,7 @@ export function PreviewScreen(): React.ReactElement {
   }, [record, removeRecord, navigation]);
 
   const handleOpenInMaps = useCallback(async () => {
-    if (!record?.latitude || !record?.longitude) {
+    if (record?.latitude == null || record?.longitude == null) {
       return;
     }
     const result = await mediaService.openInMaps(
@@ -132,7 +133,13 @@ export function PreviewScreen(): React.ReactElement {
       </View>
 
       <View style={styles.actions}>
-        <AppButton title="Share" onPress={handleShare} busy={working} style={styles.action} />
+        <AppButton
+          title="Share"
+          onPress={handleShare}
+          busy={sharing}
+          disabled={deleting}
+          style={styles.action}
+        />
         <AppButton
           title="Details"
           variant="secondary"
@@ -145,14 +152,15 @@ export function PreviewScreen(): React.ReactElement {
           title="Open in maps"
           variant="ghost"
           onPress={handleOpenInMaps}
-          disabled={record.latitude === null}
+          disabled={record.latitude === null || record.longitude === null}
           style={styles.action}
         />
         <AppButton
           title="Delete"
           variant="danger"
           onPress={handleDelete}
-          busy={working}
+          busy={deleting}
+          disabled={sharing}
           style={styles.action}
         />
       </View>

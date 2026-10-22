@@ -7,6 +7,10 @@ type AndroidPermission = Parameters<typeof PermissionsAndroid.check>[0];
 const CAMERA = PermissionsAndroid.PERMISSIONS.CAMERA;
 const FINE = PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION;
 const COARSE = PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION;
+const WRITE_STORAGE = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+/** Scoped storage (API 29+) lets MediaStore inserts go through without it. */
+const NEEDS_LEGACY_STORAGE = Platform.OS === 'android' && Number(Platform.Version) < 29;
 
 function toState(result: string): PermissionState {
   switch (result) {
@@ -83,6 +87,32 @@ export const permissionService = {
       log.error('PermissionService', 'requestLocation failed', error);
     }
     return this.snapshot();
+  },
+
+  /**
+   * Gallery export on Android 9 and below writes to public storage, which
+   * needs a runtime grant. Asks only when not yet granted; true when export
+   * can proceed.
+   */
+  async ensureGalleryAccess(): Promise<boolean> {
+    if (!NEEDS_LEGACY_STORAGE) {
+      return true;
+    }
+    if ((await check(WRITE_STORAGE)) === 'granted') {
+      return true;
+    }
+    try {
+      const result = await PermissionsAndroid.request(WRITE_STORAGE, {
+        title: 'Save to gallery',
+        message: 'GPS Location Camera needs storage access to save stamped photos to your gallery.',
+        buttonPositive: 'Allow',
+        buttonNegative: 'Not now',
+      });
+      return toState(result) === 'granted';
+    } catch (error) {
+      log.error('PermissionService', 'ensureGalleryAccess failed', error);
+      return false;
+    }
   },
 
   openAppSettings(): void {
