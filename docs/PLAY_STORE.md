@@ -70,8 +70,8 @@ Works offline: coordinates and time are stamped even without a connection.
 
 | Asset | Size | Source |
 |---|---|---|
-| App icon | 512×512 PNG | `src/assets/logo.png` (already 512×512) |
-| Feature graphic | 1024×500 PNG/JPG | needs designing |
+| App icon | 512×512 PNG | `docs/store/icon-512.png` |
+| Feature graphic | 1024×500 PNG/JPG | `docs/store/feature-graphic.png` (source: `feature-graphic.html`) |
 | Phone screenshots | 2–8, e.g. 1080×1920 | take on a device: camera HUD, stamped preview, gallery, details, settings |
 
 ## 4. App content answers (suggested; review each against the current form)
