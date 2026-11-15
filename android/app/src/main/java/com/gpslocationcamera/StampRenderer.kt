@@ -162,6 +162,27 @@ object StampRenderer {
         canvas.save()
         canvas.clipPath(clip)
         canvas.drawBitmap(mapBitmap, null, destination, Paint(Paint.FILTER_BITMAP_FLAG))
+        // The OSM tile licence (ODbL) requires visible attribution on the map.
+        val creditPaint = textPaint(Color.WHITE, Typeface.NORMAL).apply { textSize = size * 0.08f }
+        val credit = "© OpenStreetMap"
+        val creditWidth = creditPaint.measureText(credit)
+        if (creditWidth > size * 0.9f) {
+          creditPaint.textSize *= size * 0.9f / creditWidth
+        }
+        val stripHeight = creditPaint.textSize * 1.5f
+        canvas.drawRect(
+          destination.left,
+          destination.bottom - stripHeight,
+          destination.right,
+          destination.bottom,
+          Paint().apply { color = Color.argb(150, 0, 0, 0) },
+        )
+        canvas.drawText(
+          credit,
+          destination.centerX() - creditPaint.measureText(credit) / 2,
+          destination.bottom - stripHeight * 0.3f,
+          creditPaint,
+        )
         canvas.restore()
         val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
           style = Paint.Style.STROKE

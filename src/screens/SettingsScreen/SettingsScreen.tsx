@@ -235,7 +235,7 @@ export function SettingsScreen(): React.ReactElement {
 
       <SectionCard
         title="Privacy"
-        footnote="Photos, coordinates and capture records stay on this device. There is no account, no analytics and no upload. Map tiles are the only network request the app makes, and only when the map stamp is enabled.">
+        footnote="Photos and capture records stay on this device. There is no account, no analytics and no photo upload. Two features send coordinates over the network: address lookup uses Android's geocoding service, and the map stamp downloads OpenStreetMap tiles. Turn either off to keep coordinates entirely on the device.">
         <SettingLink
           label="Clear cached addresses"
           description="Removes locally stored reverse-geocoding results"

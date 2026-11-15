@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPS Camera Privacy Policy</title>
+<style>
+  :root { --bg: #ffffff; --text: #1b1f27; --muted: #5b6372; --rule: #e3e6eb; --accent: #00897a; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0e1015; --text: #eef1f5; --muted: #9aa3b2; --rule: #2a2e38; --accent: #00c2a8; }
+  }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 40px 16px 64px; }
+  h1 { font-size: 1.8rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 32px 0 8px; padding-top: 16px; border-top: 1px solid var(--rule); }
+  p, li { color: var(--text); }
+  .meta { color: var(--muted); margin: 0 0 24px; }
+  a { color: var(--accent); }
+  ul { padding-left: 20px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>GPS Camera Privacy Policy</h1>
+  <p class="meta">Effective date: 16 November 2026</p>
+
+  <p>GPS Camera ("the app") takes photos and stamps them with the location, date and time they were taken.
+  This policy explains what data the app uses, where that data goes, and the choices you have.</p>
+
+  <h2>Summary</h2>
+  <ul>
+    <li>There is no account, no advertising and no analytics in the app.</li>
+    <li>Your photos and capture records are stored only on your device. They are never uploaded by the app.</li>
+    <li>Your coordinates leave the device only when you use address lookup or the map stamp, as described below.
+      You can turn both off in Settings.</li>
+  </ul>
+
+  <h2>Permissions the app requests</h2>
+  <ul>
+    <li><strong>Camera</strong>: to take photos.</li>
+    <li><strong>Location (precise and approximate)</strong>: to read the GPS position that is stamped onto
+      each photo. Location is used only while the camera screen is open. The app does not access location
+      in the background.</li>
+    <li><strong>Storage (Android 9 and older only)</strong>: to save photos to your gallery when you choose to.</li>
+  </ul>
+
+  <h2>Data stored on your device</h2>
+  <p>For each photo, the app stores the image file and a record containing the coordinates, accuracy, altitude,
+  speed, compass direction, street address, date and time, image hashes, and any company, project or note text
+  you entered in Settings. This data stays in the app's private storage on your device. If you enable
+  "Export to device gallery", the stamped photo is also saved to your phone's photo gallery, where other apps
+  you have allowed to access photos can read it.</p>
+  <p>Saved photos may contain location data in their EXIF metadata when "Write EXIF metadata" is enabled.
+  Keep this in mind before you share a photo.</p>
+
+  <h2>Data sent off your device</h2>
+  <ul>
+    <li><strong>Address lookup</strong> (setting: "Address"): the app uses Android's built-in geocoding service
+      to turn coordinates into a street address. On most devices this sends your coordinates to Google, whose
+      handling is described in the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.
+      Results are cached on your device so the same location is not looked up again.</li>
+    <li><strong>Map stamp</strong> (setting: "Map preview", off by default): the app downloads map tiles from
+      the OpenStreetMap Foundation's tile servers. A tile request reveals the approximate area being viewed
+      (a square of a few hundred metres) and your IP address to OpenStreetMap, as described in the
+      <a href="https://osmfoundation.org/wiki/Privacy_Policy">OpenStreetMap Foundation Privacy Policy</a>.</li>
+  </ul>
+  <p>All of these requests use encrypted (HTTPS) connections where the provider supports them.
+  The app developer does not operate any server and does not receive any of your data.</p>
+
+  <h2>Sharing</h2>
+  <p>A photo leaves your device through the app only when you tap Share and choose where to send it, or when you
+  open its location in a maps app. The receiving app's own privacy policy then applies.</p>
+
+  <h2>Deleting your data</h2>
+  <p>You can delete any capture from within the app. Clearing cached addresses is available in Settings.
+  Uninstalling the app removes all of its stored photos and records from your device; photos you exported to
+  the gallery remain there until you delete them.</p>
+
+  <h2>Children</h2>
+  <p>The app is not directed at children under 13 and does not knowingly collect data from them.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If this policy changes, the updated version will be posted on this page with a new effective date.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <a href="mailto:CONTACT_EMAIL">CONTACT_EMAIL</a></p>
+</main>
+</body>
+</html>

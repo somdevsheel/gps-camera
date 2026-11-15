@@ -125,6 +125,9 @@ android {
             // from a properly signed build.
             signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
+            // Packs native symbol tables into the .aab so Play Console can show
+            // readable native crash stacks (and stops its "missing symbols" warning).
+            ndk { debugSymbolLevel 'SYMBOL_TABLE' }
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }

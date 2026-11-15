@@ -46,7 +46,8 @@ export const PermissionGate = memo(function PermissionGateImpl({
         </Text>
       </View>
       <Text style={styles.privacy}>
-        Photos and location data stay on this device. Nothing is uploaded.
+        Photos stay on this device and are never uploaded. Coordinates are only sent out
+        to look up a street address or map, and you can turn that off in Settings.
       </Text>
       {blocked ? (
         <AppButton title="Open app settings" onPress={onOpenSettings} style={styles.action} />
